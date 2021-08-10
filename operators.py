@@ -110,7 +110,8 @@ class BONEWIDGET_OT_copyWidget(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return (context.object and context.object.type == 'ARMATURE' and context.object.mode == 'POSE'
-                and context.active_pose_bone.custom_shape is not None and len(context.selected_pose_bones) > 1)
+                and context.active_pose_bone and context.active_pose_bone.custom_shape
+                and len(context.selected_pose_bones) > 1)
 
     def execute(self, context):
         active_bone = context.active_pose_bone
