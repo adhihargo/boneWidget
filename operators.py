@@ -1,27 +1,9 @@
 import bpy
-
-from .functions import (
-    findMatchBones,
-    fromWidgetFindBone,
-    findMirrorObject,
-    symmetrizeWidget,
-    symmetrizeWidget_helper,
-    boneMatrix,
-    createWidget,
-    editWidget,
-    returnToArmature,
-    addRemoveWidgets,
-    readWidgets,
-    objectDataToDico,
-    getCollection,
-    getViewLayerCollection,
-    deleteUnusedWidgets,
-    clearBoneWidgets,
-    resyncWidgetNames,
-    addObjectAsWidget,
-)
-from bpy.types import Operator
 from bpy.props import FloatProperty, BoolProperty, FloatVectorProperty
+
+from .functions import createWidget, boneMatrix, copyWidget, findMatchBones, fromWidgetFindBone, \
+    symmetrizeWidget_helper, editWidget, returnToArmature, addRemoveWidgets, readWidgets, getCollection, \
+    getViewLayerCollection, deleteUnusedWidgets, clearBoneWidgets, resyncWidgetNames, addObjectAsWidget
 
 
 class BONEWIDGET_OT_createWidget(bpy.types.Operator):
@@ -32,7 +14,7 @@ class BONEWIDGET_OT_createWidget(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.mode == 'POSE')
+        return context.object and context.object.mode == 'POSE'
 
     relative_size: BoolProperty(
         name="Scale to Bone length",
@@ -79,7 +61,7 @@ class BONEWIDGET_OT_createWidget(bpy.types.Operator):
         wgts = readWidgets()
         for bone in bpy.context.selected_pose_bones:
             createWidget(bone, wgts[context.scene.widget_list], self.relative_size, self.global_size, [
-                         1, 1, 1], self.slide, self.rotation, getCollection(context))
+                1, 1, 1], self.slide, self.rotation, getCollection(context))
         return {'FINISHED'}
 
 
@@ -115,7 +97,7 @@ class BONEWIDGET_OT_copyWidget(bpy.types.Operator):
 
     def execute(self, context):
         active_bone = context.active_pose_bone
-        functions.copyWidget(active_bone, context.selected_pose_bones)
+        copyWidget(active_bone, context.selected_pose_bones)
         return {'FINISHED'}
 
 
@@ -165,7 +147,7 @@ class BONEWIDGET_OT_matchSymmetrizeShape(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            #collection = getCollection(context)
+            # collection = getCollection(context)
             widget = bpy.context.active_pose_bone.custom_shape
             collection = getViewLayerCollection(context, widget)
             widgetsAndBones = findMatchBones()[0]
@@ -180,7 +162,7 @@ class BONEWIDGET_OT_matchSymmetrizeShape(bpy.types.Operator):
                 symmetrizeWidget_helper(bone, collection, activeObject, widgetsAndBones)
         except Exception as e:
             self.report({'INFO'}, "There is nothing to mirror to")
-            #pass
+            # pass
 
         return {'FINISHED'}
 
@@ -194,7 +176,6 @@ class BONEWIDGET_OT_addWidgets(bpy.types.Operator):
     def poll(cls, context):
         return (context.object and context.object.type == 'MESH' and context.object.mode == 'OBJECT'
                 and context.active_object is not None)
-
 
     def execute(self, context):
         objects = []
@@ -261,7 +242,7 @@ class BONEWIDGET_OT_clearBoneWidgets(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-         return (context.object and context.object.type == 'ARMATURE' and context.object.mode == 'POSE')
+        return (context.object and context.object.type == 'ARMATURE' and context.object.mode == 'POSE')
 
     def execute(self, context):
         clearBoneWidgets()
@@ -280,6 +261,7 @@ class BONEWIDGET_OT_resyncWidgetNames(bpy.types.Operator):
     def execute(self, context):
         resyncWidgetNames()
         return {'FINISHED'}
+
 
 '''
 class BONEWIDGET_OT_selectObject(bpy.types.Operator):
@@ -338,6 +320,7 @@ class BONEWIDGET_OT_confirmWidget(bpy.types.Operator):
         return {'FINISHED'}
 '''
 
+
 class BONEWIDGET_OT_addObjectAsWidget(bpy.types.Operator):
     """Add selected object as widget for active bone."""
     bl_idname = "bonewidget.add_as_widget"
@@ -350,6 +333,7 @@ class BONEWIDGET_OT_addObjectAsWidget(bpy.types.Operator):
     def execute(self, context):
         addObjectAsWidget(context, getCollection(context))
         return {'FINISHED'}
+
 
 classes = (
     BONEWIDGET_OT_removeWidgets,
